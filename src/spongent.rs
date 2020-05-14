@@ -2,7 +2,7 @@ use core::fmt;
 
 use constant_time_eq::constant_time_eq;
 
-const SECURITY: u32 = 128;
+const SECURITY: u32 = 64;
 
 /// Possible SPONGENT versions as described by
 /// https://sites.google.com/site/spongenthash/
@@ -22,9 +22,9 @@ pub enum Version {
     S256512256,
 }
 
-const VERSION: Version = Version::S224224112;
-const NROUNDS: u32 = 170;
-const WIDTH: u32 = 336;
+const VERSION: Version = Version::S16016016;
+const NROUNDS: u32 = 90;
+const WIDTH: u32 = 176;
 
 const SW_RATE: u32 = 16;
 const SW_RATE_BYTES: u32 = SW_RATE / 8;
@@ -275,7 +275,7 @@ pub fn spongent_wrap(
     input: &[u8],
     output: &mut [u8],
     unwrap: bool,
-) -> Result<[u8; 16], SpongentError> {
+) -> Result<[u8; HASHSIZE_BYTES as usize], SpongentError> {
     if ad.len() as u32 % SW_RATE_BYTES != 0 || input.len() as u32 % SW_RATE_BYTES != 0 {
         panic!("Call to spongent_wrap with invalid input length.")
     }
@@ -382,7 +382,7 @@ pub fn spongent_unwrap(
 ///
 /// # Panics
 /// This function panics if `ad.len() % SW_RATE_BYTES != 0`.
-pub fn spongent_mac(key: &[u8], ad: &[u8]) -> Result<[u8; 16], SpongentError> {
+pub fn spongent_mac(key: &[u8], ad: &[u8]) -> Result<[u8; HASHSIZE_BYTES as usize], SpongentError> {
     let mac = spongent_wrap(key, ad, &[], &mut [], false)?;
 
     Ok(mac)
